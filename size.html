@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خياط اليرموك</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+      colors: {
+        gold: { 50:'#fdf8ed', 100:'#f9efd0', 200:'#f2dca0', 300:'#e9c56a', 400:'#d4a853', 500:'#C9A84C', 600:'#b08a30', 700:'#936e28', 800:'#7a5a26', 900:'#664b24' },
+        royal: { 50:'#f5f5f5', 100:'#e0e0e0', 200:'#b0b0b0', 300:'#808080', 400:'#505050', 500:'#2d2d2d', 600:'#1a1a1a', 700:'#111111', 800:'#0a0a0a', 900:'#050505' }
+      }
+    }
+  }
+}
+</script>
+<style>
+:root {
+  --bg-primary: #050505;
+  --bg-secondary: #0a0a0a;
+  --bg-card: rgba(255,255,255,0.04);
+  --bg-card-hover: rgba(255,255,255,0.08);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255,255,255,0.6);
+  --text-muted: rgba(255,255,255,0.35);
+  --border-color: rgba(255,255,255,0.08);
+  --border-gold: rgba(201,168,76,0.3);
+  --gold: #C9A84C;
+  --gold-light: #d4a853;
+  --gold-dark: #936e28;
+  --glass-bg: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --input-bg: rgba(255,255,255,0.06);
+  --shadow-gold: 0 0 40px rgba(201,168,76,0.15);
+  --blob1: rgba(201,168,76,0.06);
+  --blob2: rgba(201,168,76,0.04);
+}
+
+.light-mode {
+  --bg-primary: #f8f6f1;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(0,0,0,0.03);
+  --bg-card-hover: rgba(0,0,0,0.06);
+  --text-primary: #1a1a1a;
+  --text-secondary: rgba(0,0,0,0.55);
+  --text-muted: rgba(0,0,0,0.3);
+  --border-color: rgba(0,0,0,0.08);
+  --border-gold: rgba(201,168,76,0.4);
+  --glass-bg: rgba(255,255,255,0.7);
+  --glass-border: rgba(0,0,0,0.08);
+  --input-bg: rgba(0,0,0,0.04);
+  --shadow-gold: 0 0 40px rgba(201,168,76,0.1);
+  --blob1: rgba(201,168,76,0.08);
+  --blob2: rgba(201,168,76,0.05);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Cairo', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.5s, color 0.5s;
+}
+
+/* خلفية متحركة */
+.bg-blobs {
+  position: fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+}
+.bg-blobs .blob {
+  position: absolute; border-radius: 50%; filter: blur(120px);
+  animation: blobFloat 20s ease-in-out infinite;
+}
+.bg-blobs .blob:nth-child(1) {
+  width:600px; height:600px; background: var(--blob1);
+  top:-10%; right:-10%; animation-delay:0s;
+}
+.bg-blobs .blob:nth-child(2) {
+  width:500px; height:500px; background: var(--blob2);
+  bottom:-10%; left:-10%; animation-delay:-7s;
+}
+.bg-blobs .blob:nth-child(3) {
+  width:400px; height:400px; background: var(--blob1);
+  top:40%; left:50%; animation-delay:-14s;
+}
+@keyframes blobFloat {
+  0%,100% { transform: translate(0,0) scale(1); }
+  25% { transform: translate(40px,-30px) scale(1.05); }
+  50% { transform: translate(-20px,40px) scale(0.95); }
+  75% { transform: translate(30px,20px) scale(1.02); }
+}
+
+/* تأثير زجاجي */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+}
+.glass-strong {
+  background: var(--glass-bg);
+  backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+  border: 1px solid var(--glass-border);
+}
+
+/* حقول الإدخال */
+.input-field {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  width: 100%;
+  transition: all 0.3s;
+  outline: none;
+}
+.input-field:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.15);
+}
+.input-field::placeholder { color: var(--text-muted); }
+.input-field option { background: var(--bg-secondary); color: var(--text-primary); }
+
+/* أزرار */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #0a0a0a;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  transition: all 0.3s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: var(--shadow-gold); }
+.btn-gold:active { transform: translateY(0); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--border-gold);
+  padding: 10px 22px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-outline:hover { background: rgba(201,168,76,0.1); }
+
+.btn-ghost {
+  background: transparent; color: var(--text-secondary); border:none;
+  padding: 8px 14px; border-radius: 10px; cursor: pointer;
+  font-family: 'Cairo', sans-serif; font-size: 13px; transition: all 0.3s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-ghost:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+
+.btn-danger {
+  background: rgba(239,68,68,0.1); color: #ef4444; border:1px solid rgba(239,68,68,0.2);
+  padding: 8px 16px; border-radius: 10px; cursor: pointer;
+  font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; transition: all 0.3s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+/* بطاقات */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s;
+}
+.card:hover { border-color: var(--border-gold); }
+
+/* صفحات */
+.page { display:none; animation: pageIn 0.4s ease; }
+.page.active { display:block; }
+@keyframes pageIn {
+  from { opacity:0; transform: translateY(16px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+/* إشعارات Toast */
+#toast-container {
+  position: fixed; top:20px; left:50%; transform:translateX(-50%);
+  z-index:10000; display:flex; flex-direction:column; gap:8px; align-items:center;
+}
+.toast {
+  padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 600;
+  animation: toastIn 0.4s ease, toastOut 0.4s ease 2.6s forwards;
+  display: flex; align-items: center; gap: 10px;
+  backdrop-filter: blur(20px); min-width: 280px; justify-content: center;
+}
+.toast.success { background: rgba(34,197,94,0.15); color: #22c55e; border:1px solid rgba(34,197,94,0.3); }
+.toast.error { background: rgba(239,68,68,0.15); color: #ef4444; border:1px solid rgba(239,68,68,0.3); }
+.toast.info { background: rgba(201,168,76,0.15); color: var(--gold); border:1px solid var(--border-gold); }
+@keyframes toastIn { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateY(-20px); } }
+
+/* مودال */
+#modal-overlay {
+  position: fixed; inset:0; z-index:9000; display:none;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+#modal-overlay.active { display:flex; }
+#modal-content {
+  background: var(--bg-secondary); border:1px solid var(--border-color);
+  border-radius: 20px; padding: 32px; max-width: 500px; width:100%;
+  max-height: 85vh; overflow-y: auto; animation: modalIn 0.3s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+
+/* تابويبات */
+.tab-btn {
+  padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent; transition: all 0.3s;
+  background: transparent; color: var(--text-secondary); font-family: 'Cairo';
+  white-space: nowrap;
+}
+.tab-btn.active { background: rgba(201,168,76,0.12); color: var(--gold); border-color: var(--border-gold); }
+.tab-btn:hover:not(.active) { background: var(--bg-card-hover); }
+
+/* شريط التمرير */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* جدول */
+.data-table { width:100%; border-collapse: separate; border-spacing: 0; }
+.data-table th {
+  background: var(--bg-card); color: var(--text-secondary); font-size:12px;
+  font-weight:600; padding:12px 14px; text-align:right; border-bottom:1px solid var(--border-color);
+  position:sticky; top:0; z-index:1;
+}
+.data-table td {
+  padding:12px 14px; border-bottom:1px solid var(--border-color);
+  font-size:13px; vertical-align:middle;
+}
+.data-table tr:hover td { background: var(--bg-card-hover); }
+
+/* راديو مخصص */
+.radio-group { display:flex; flex-wrap:wrap; gap:8px; }
+.radio-item {
+  padding:8px 16px; border-radius:10px; font-size:13px; cursor:pointer;
+  border:1px solid var(--border-color); transition:all 0.3s; user-select:none;
+  color: var(--text-secondary); font-weight:500;
+}
+.radio-item.selected { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,0.1); }
+.radio-item:hover:not(.selected) { border-color: var(--text-muted); }
+
+/* خط ذهبي فاصل */
+.gold-divider {
+  height:1px; background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 32px 0; opacity:0.4;
+}
+
+/* تأثير التحميل */
+.shimmer {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%; animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* هيدر */
+#main-header {
+  position: sticky; top:0; z-index:100;
+  background: var(--glass-bg);
+  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s;
+}
+
+/* شعار */
+.logo-text {
+  font-size: 22px; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* زر الوضع الليلي */
+.theme-toggle {
+  width:48px; height:26px; border-radius:13px; cursor:pointer; border:none;
+  background: var(--input-bg); position:relative; transition:all 0.3s;
+}
+.theme-toggle::after {
+  content:''; position:absolute; width:20px; height:20px; border-radius:50%;
+  background: var(--gold); top:3px; right:3px; transition:all 0.3s;
+}
+.light-mode .theme-toggle::after { right:25px; }
+
+/* طباعة */
+#print-area { display:none; }
+@media print {
+  body * { visibility:hidden; }
+  #print-area, #print-area * { visibility:visible; }
+  #print-area {
+    display:block!important; position:absolute; top:0; right:0;
+    background:white; color:#000; padding:30px; width:100%;
+  }
+}
+
+/* استجابة */
+@media(max-width:768px) {
+  .data-table { font-size:12px; }
+  .data-table th, .data-table td { padding:8px 10px; }
+  .card { padding:16px; }
+  .hide-mobile { display:none!important; }
+}
+@media(max-width:480px) {
+  .logo-text { font-size:18px; }
+}
+
+/* تأثير دخول عناصر */
+.fade-up { opacity:0; transform:translateY(20px); transition:all 0.5s ease; }
+.fade-up.visible { opacity:1; transform:translateY(0); }
+
+/* تأثير حدود ذهبية متحركة */
+.gold-glow {
+  box-shadow: 0 0 0 1px var(--border-gold), var(--shadow-gold);
+}
+
+/* خصائص إضافية */
+.stat-number {
+  font-size: 36px; font-weight: 900; line-height:1;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.label-text { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
+.section-title { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+
+/* تأثير نبض ذهبي */
+@keyframes goldPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(201,168,76,0); }
+}
+.pulse-gold { animation: goldPulse 2s infinite; }
+</style>
+</head>
+<body>
+<!-- خلفية متحركة -->
+<div class="bg-blobs"><div class="blob"></div><div class="blob"></div><div class="blob"></div></div>
+
+<!-- الإشعارات -->
+<div id="toast-container"></div>
+
+<!-- المودال -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div id="modal-content"></div>
+</div>
+
+<!-- منطقة الطباعة -->
+<div id="print-area"></div>
+
+<!-- الهيدر -->
+<header id="main-header">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,var(--gold),var(--gold-dark))">
+        <i class="fas fa-scissors text-black text-sm" style="transform:rotate(-45deg)"></i>
+      </div>
+      <span class="logo-text hide-mobile">خياط اليرموك</span>
+    </div>
+    <nav class="flex items-center gap-2">
+      <button class="btn-ghost" onclick="navigateTo('home')" title="الرئيسية"><i class="fas fa-home"></i><span class="hide-mobile">الرئيسية</span></button>
+      <button class="btn-ghost" onclick="navigateTo('add')" title="إدخال المقاسات"><i class="fas fa-ruler-combined"></i><span class="hide-mobile">المقاسات</span></button>
+      <button class="btn-ghost" onclick="navigateTo('search')" title="البحث"><i class="fas fa-search"></i><span class="hide-mobile">البحث</span></button>
+      <div style="width:1px;height:24px;background:var(--border-color);margin:0 4px" class="hide-mobile"></div>
+      <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع"></button>
+      <button class="btn-ghost" onclick="handleAdminClick()" title="الإدارة"><i class="fas fa-cog"></i><span class="hide-mobile">الإدارة</span></button>
+    </nav>
+  </div>
+</header>
+
+<!-- المحتوى الرئيسي -->
+<main class="relative z-10 max-w-7xl mx-auto px-4 py-8" id="app-main">
+
+  <!-- ========== الصفحة الرئيسية ========== -->
+  <section id="page-home" class="page active">
+    <!-- القسم البطولي -->
+    <div class="text-center py-16 md:py-24 fade-up">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6" style="font-size:12px;color:var(--gold)">
+        <i class="fas fa-crown"></i>
+        <span>إرثٌ منذ 2002</span>
+      </div>
+      <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight" style="color:var(--text-primary)">
+        خياط <span style="background:linear-gradient(135deg,var(--gold-light),var(--gold),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">اليرموك</span>
+      </h1>
+      <p class="text-lg md:text-xl max-w-2xl mx-auto mb-10" style="color:var(--text-secondary)">
+        قصة إرثٍ يُخاط بالشغف، وتاريخٍ يرتديه الأجيال
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <button class="btn-gold text-base px-8 py-4 pulse-gold" onclick="navigateTo('add')">
+          <i class="fas fa-ruler-combined"></i> إدخال المقاسات
+        </button>
+        <button class="btn-outline text-base px-8 py-4" onclick="navigateTo('search')">
+          <i class="fas fa-search"></i> ابحث عن مقاساتك
+        </button>
+      </div>
+    </div>
+
+    <!-- إحصائيات سريعة -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 fade-up">
+      <div class="card text-center">
+        <div class="stat-number" id="stat-customers">0</div>
+        <div class="label-text mt-2">عميل مسجل</div>
+      </div>
+      <div class="card text-center">
+        <div class="stat-number" id="stat-measurements">0</div>
+        <div class="label-text mt-2">مقاس محفوظ</div>
+      </div>
+      <div class="card text-center">
+        <div class="stat-number" id="stat-groups">0</div>
+        <div class="label-text mt-2">مجموعة خياطة</div>
+      </div>
+      <div class="card text-center">
+        <div class="stat-number">22</div>
+        <div class="label-text mt-2">سنة خبرة</div>
+      </div>
+    </div>
+
+    <div class="gold-divider"></div>
+
+    <!-- القصة -->
+    <div class="max-w-3xl mx-auto mb-12 fade-up">
+      <h2 class="section-title text-center mb-8"><i class="fas fa-book-open ml-2" style="color:var(--gold)"></i>الفصل الأول: الغرس الأول</h2>
+      <div class="card glass" style="line-height:2;font-size:15px;color:var(--text-secondary)">
+        <p class="mb-4">منذ أكثر من عقدين من الزمان، وتحديداً في عام 2002، وضع المؤسس والوالد <strong style="color:var(--gold)">صالح سهيل "أبو عبد العزيز"</strong> (رحمه الله) حجر الزاوية لمشروعٍ لم يكن يملك من العتاد إلا القليل، ومن الإيمان واليقين الكثير.</p>
+        <p class="mb-4">استلهم الوالد هيبة هذه المهنة من تاريخها العريق، وبدأ في دكانٍ بسيط مفعمٍ برائحة الأمل. لم تكن جدرانه مزينة، لكنها كانت محصنة بصدق النية والبحث الدؤوب عن الجودة.</p>
+        <p>قضى الوالد سنواته الأولى في تمحيص الأقمشة واختيار أنبل التجار، حتى غدا "اليرموك" اسماً يُقرن بالأمانة قبل المهارة، وبالخُلق قبل الخياطة.</p>
+      </div>
+    </div>
+
+    <!-- الصفحات التعريفية المخصصة -->
+    <div id="home-custom-pages" class="mb-12"></div>
+
+    <!-- آخر العملاء -->
+    <div class="mb-12 fade-up" id="recent-customers-section" style="display:none">
+      <h2 class="section-title mb-6"><i class="fas fa-clock ml-2" style="color:var(--gold)"></i>آخر العملاء المضافين</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="recent-customers-grid"></div>
+    </div>
+
+    <div class="gold-divider"></div>
+
+    <!-- معلومات المحل -->
+    <div class="mb-12 fade-up" id="shop-info-section">
+      <h2 class="section-title text-center mb-8"><i class="fas fa-store ml-2" style="color:var(--gold)"></i>معلومات المحل</h2>
+      <div class="card glass max-w-2xl mx-auto" id="shop-info-card"></div>
+    </div>
+
+    <!-- روابط التواصل -->
+    <div class="mb-12 fade-up" id="social-links-section" style="display:none">
+      <h2 class="section-title text-center mb-6"><i class="fas fa-share-alt ml-2" style="color:var(--gold)"></i>تواصل معنا</h2>
+      <div class="flex flex-wrap justify-center gap-4" id="social-links-grid"></div>
+    </div>
+
+    <!-- الفوتر -->
+    <footer class="text-center py-8" style="color:var(--text-muted);font-size:12px">
+      <div class="gold-divider mb-8"></div>
+      <p>خياط اليرموك &copy; <span id="footer-year"></span> - جميع الحقوق محفوظة</p>
+    </footer>
+  </section>
+
+  <!-- ========== صفحة إدخال المقاسات ========== -->
+  <section id="page-add" class="page">
+    <div class="max-w-3xl mx-auto">
+      <div class="flex items-center gap-3 mb-8">
+        <button class="btn-ghost" onclick="navigateTo('home')"><i class="fas fa-arrow-right"></i></button>
+        <h1 class="text-2xl font-bold">إدخال مقاسات عميل جديد</h1>
+      </div>
+      <form id="add-customer-form" onsubmit="handleAddCustomer(event)">
+        <!-- بيانات العميل -->
+        <div class="card glass mb-6">
+          <h3 class="section-title mb-4"><i class="fas fa-user ml-2" style="color:var(--gold)"></i>بيانات العميل</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><div class="label-text">الاسم الكامل</div><input class="input-field" id="add-name" required placeholder="أدخل اسم العميل"></div>
+            <div><div class="label-text">رقم الهاتف</div><input class="input-field" id="add-phone" required placeholder="مثال: 0501234567" type="tel"></div>
+          </div>
+          <div class="mt-4"><div class="label-text">ملاحظات</div><textarea class="input-field" id="add-notes" rows="2" placeholder="أي ملاحظات إضافية..."></textarea></div>
+        </div>
+        <!-- جدول المقاسات -->
+        <div class="card glass mb-6">
+          <h3 class="section-title mb-4"><i class="fas fa-ruler ml-2" style="color:var(--gold)"></i>جدول المقاسات</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="add-measurements-grid"></div>
+        </div>
+        <!-- تفاصيل الخياطة -->
+        <div class="card glass mb-6" id="add-tailoring-section"></div>
+        <!-- زر الحفظ -->
+        <div class="text-center">
+          <button type="submit" class="btn-gold text-base px-12 py-4"><i class="fas fa-save"></i>حفظ المقاسات</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ========== صفحة البحث ========== -->
+  <section id="page-search" class="page">
+    <div class="max-w-3xl mx-auto">
+      <div class="flex items-center gap-3 mb-8">
+        <button class="btn-ghost" onclick="navigateTo('home')"><i class="fas fa-arrow-right"></i></button>
+        <h1 class="text-2xl font-bold">البحث عن مقاساتك</h1>
+      </div>
+      <div class="card glass mb-6">
+        <div class="label-text">أدخل رقم الهاتف</div>
+        <div class="flex gap-3">
+          <input class="input-field flex-1" id="search-phone" placeholder="مثال: 0501234567" type="tel">
+          <button class="btn-gold" onclick="handleSearch()"><i class="fas fa-search"></i>بحث</button>
+        </div>
+      </div>
+      <div id="search-results"></div>
+    </div>
+  </section>
+
+  <!-- ========== صفحة الإدارة ========== -->
+  <section id="page-admin" class="page">
+    <div class="flex items-center gap-3 mb-6">
+      <button class="btn-ghost" onclick="navigateTo('home')"><i class="fas fa-arrow-right"></i></button>
+      <h1 class="text-2xl font-bold">لوحة الإدارة</h1>
+      <button class="btn-ghost mr-auto" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i>خروج</button>
+    </div>
+    <!-- تابويبات الإدارة -->
+    <div class="flex gap-2 mb-6 overflow-x-auto pb-2" id="admin-tabs" style="-webkit-overflow-scrolling:touch">
+      <button class="tab-btn active" onclick="switchAdminTab('customers')"><i class="fas fa-users ml-1"></i>العملاء</button>
+      <button class="tab-btn" onclick="switchAdminTab('groups')"><i class="fas fa-layer-group ml-1"></i>المجموعات</button>
+      <button class="tab-btn" onclick="switchAdminTab('settings')"><i class="fas fa-store ml-1"></i>إعدادات المحل</button>
+      <button class="tab-btn" onclick="switchAdminTab('pages')"><i class="fas fa-file-alt ml-1"></i>الصفحات التعريفية</button>
+      <button class="tab-btn" onclick="switchAdminTab('social')"><i class="fas fa-share-alt ml-1"></i>التواصل الاجتماعي</button>
+      <button class="tab-btn" onclick="switchAdminTab('backup')"><i class="fas fa-database ml-1"></i>النسخ الاحتياطي</button>
+    </div>
+    <!-- محتوى التابويبات -->
+    <div id="admin-tab-content"></div>
+  </section>
+
+</main>
+
+<script>
+// ============================
+// الثوابت والبيانات الافتراضية
+// ============================
+const MEASUREMENT_FIELDS = [
+  { key:'height', label:'الطول', icon:'fa-arrows-alt-v' },
+  { key:'shoulder', label:'الكتف', icon:'fa-arrows-alt-h' },
+  { key:'armLength', label:'طول اليد', icon:'fa-hand-paper' },
+  { key:'chestWidth', label:'وسع الصدر', icon:'fa-expand-alt' },
+  { key:'neck', label:'الرقبة', icon:'fa-circle' },
+  { key:'wrist', label:'وسط اليد', icon:'fa-hand-rock' },
+  { key:'kubkLength', label:'طول الكبك', icon:'fa-ruler-vertical' },
+  { key:'strideWidth', label:'وسع الخطوة (تحت)', icon:'fa-shoe-prints' }
+];
+
+const DEFAULT_GROUPS = [
+  { id:'g1', name:'نوع الرقبة', options:['قلاب ملكي','قلاب فرنسي','قلاب دائري','سادة مربع','سادة دائري','صيني'] },
+  { id:'g2', name:'نوع الكبك', options:['كبك قماش','كبك حشو مربع','كبك حشو دائري','سادة بدون زرار'] },
+  { id:'g3', name:'نوع جبزور الصدر', options:['كبس ظاهر','كبس مخفي','زرار مخفي','سحاب'] },
+  { id:'g4', name:'نوع الخياط', options:['قطري','سعودي','حجازي','عماني','كويتي'] }
+];
+
+const DEFAULT_SETTINGS = {
+  shopName: 'خياط اليرموك',
+  shopPhone: '',
+  shopAddress: '',
+  shopDescription: 'قصة إرثٍ يُخاط بالشغف، وتاريخٍ يرتديه الأجيال',
+  adminPassword: 'admin',
+  customPages: [],
+  socialLinks: { facebook:'', instagram:'', whatsapp:'', tiktok:'', snapchat:'', youtube:'' }
+};
+
+const SOCIAL_ICONS = {
+  facebook:'fa-facebook-f', instagram:'fa-instagram', whatsapp:'fa-whatsapp',
+  tiktok:'fa-tiktok', snapchat:'fa-snapchat-ghost', youtube:'fa-youtube'
+};
+const SOCIAL_LABELS = {
+  facebook:'فيسبوك', instagram:'إنستغرام', whatsapp:'واتساب',
+  tiktok:'تيك توك', snapchat:'سناب شات', youtube:'يوتيوب'
+};
+
+// ============================
+// إدارة الحالة
+// ============================
+let state = {
+  currentPage: 'home',
+  adminTab: 'customers',
+  isAdmin: false,
+  darkMode: true,
+  editingCustomerId: null
+};
+
+// ============================
+// طبقة البيانات (localStorage)
+// ============================
+function loadData(key, fallback) {
+  try { const d = localStorage.getItem('ym_'+key); return d ? JSON.parse(d) : fallback; }
+  catch(e) { return fallback; }
+}
+function saveData(key, data) {
+  try { localStorage.setItem('ym_'+key, JSON.stringify(data)); } catch(e) {}
+}
+function getSettings() { return loadData('settings', {...DEFAULT_SETTINGS}); }
+function saveSettings(s) { saveData('settings', s); }
+function getGroups() { return loadData('groups', [...DEFAULT_GROUPS]); }
+function saveGroups(g) { saveData('groups', g); }
+function getCustomers() { return loadData('customers', []); }
+function saveCustomers(c) { saveData('customers', c); }
+
+function generateId() { return 'YM-' + String(Date.now()).slice(-6) + Math.random().toString(36).slice(2,4).toUpperCase(); }
+
+// ============================
+// التنقل
+// ============================
+function navigateTo(page) {
+  // إذا كان صفحة الإدارة ولم يسجل دخول
+  if (page === 'admin' && !state.isAdmin) {
+    showAdminLoginModal();
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-'+page);
+  if (el) { el.classList.add('active'); }
+  state.currentPage = page;
+  window.scrollTo({ top:0, behavior:'smooth' });
+
+  // تحديث المحتوى حسب الصفحة
+  if (page === 'home') renderHome();
+  if (page === 'add') renderAddForm();
+  if (page === 'admin') renderAdminTab();
+}
+
+// ============================
+// الموضوع (ليلي/نهاري)
+// ============================
+function toggleTheme() {
+  state.darkMode = !state.darkMode;
+  applyTheme();
+  saveData('darkMode', state.darkMode);
+}
+function applyTheme() {
+  document.body.classList.toggle('light-mode', !state.darkMode);
+}
+
+// ============================
+// إشعارات Toast
+// ============================
+function showToast(msg, type='success') {
+  const c = document.getElementById('toast-container');
+  const icons = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-info-circle' };
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.innerHTML = `<i class="fas ${icons[type]}"></i><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ============================
+// مودال
+// ============================
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+// ============================
+// تسجيل دخول الإدارة
+// ============================
+function handleAdminClick() {
+  if (state.isAdmin) { navigateTo('admin'); return; }
+  showAdminLoginModal();
+}
+function showAdminLoginModal() {
+  showModal(`
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style="background:linear-gradient(135deg,var(--gold),var(--gold-dark))">
+        <i class="fas fa-lock text-black text-xl"></i>
+      </div>
+      <h3 class="text-xl font-bold">الدخول للوحة الإدارة</h3>
+      <p class="text-sm mt-1" style="color:var(--text-muted)">أدخل كلمة المرور الخاصة بالمحل</p>
+    </div>
+    <div class="mb-4"><div class="label-text">كلمة المرور</div>
+      <input class="input-field" id="admin-pass-input" type="password" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <div id="admin-login-error" style="color:#ef4444;font-size:13px;display:none" class="mb-3"></div>
+    <button class="btn-gold w-full justify-center" onclick="adminLogin()"><i class="fas fa-sign-in-alt"></i>دخول</button>
+  `);
+  setTimeout(() => document.getElementById('admin-pass-input')?.focus(), 100);
+}
+function adminLogin() {
+  const pass = document.getElementById('admin-pass-input').value;
+  const settings = getSettings();
+  if (pass === settings.adminPassword) {
+    state.isAdmin = true;
+    closeModal();
+    showToast('تم تسجيل الدخول بنجاح');
+    navigateTo('admin');
+  } else {
+    const err = document.getElementById('admin-login-error');
+    err.style.display = 'block';
+    err.textContent = 'كلمة المرور غير صحيحة';
+    document.getElementById('admin-pass-input').value = '';
+    document.getElementById('admin-pass-input').focus();
+  }
+}
+function adminLogout() {
+  state.isAdmin = false;
+  showToast('تم تسجيل الخروج', 'info');
+  navigateTo('home');
+}
+
+// ============================
+// الصفحة الرئيسية
+// ============================
+function renderHome() {
+  const customers = getCustomers();
+  const groups = getGroups();
+  const settings = getSettings();
+
+  // إحصائيات
+  document.getElementById('stat-customers').textContent = customers.length;
+  document.getElementById('stat-measurements').textContent = customers.length;
+  document.getElementById('stat-groups').textContent = groups.length;
+
+  // آخر العملاء
+  /*const recentSection = document.getElementById('recent-customers-section');
+  const recentGrid = document.getElementById('recent-customers-grid');
+  if (customers.length > 0) {
+    recentSection.style.display = 'block';
+    const recent = customers.slice(-6).reverse();
+    recentGrid.innerHTML = recent.map(c => `
+      <div class="card glass" style="cursor:pointer" onclick="viewCustomerFromHome('${c.id}')">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-bold">${escHtml(c.name)}</span>
+          <span style="font-size:10px;color:var(--gold);background:rgba(201,168,76,0.1);padding:2px 8px;border-radius:6px">${c.id}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted)" class="flex items-center gap-2">
+          <i class="fas fa-phone" style="font-size:10px"></i>${escHtml(c.phone)}
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">${formatDate(c.dateAdded)}</div>
+      </div>
+    `).join('');
+  }*/ else {
+    recentSection.style.display = 'none';
+  }
+
+  // معلومات المحل
+  const infoCard = document.getElementById('shop-info-card');
+  infoCard.innerHTML = `
+    <div class="flex items-center gap-4 mb-6">
+      <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,var(--gold),var(--gold-dark))">
+        <i class="fas fa-scissors text-black text-lg" style="transform:rotate(-45deg)"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold">${escHtml(settings.shopName)}</h3>
+        <p style="font-size:13px;color:var(--text-secondary)">${escHtml(settings.shopDescription)}</p>
+      </div>
+    </div>
+    ${settings.shopPhone ? `<div class="flex items-center gap-3 mb-3" style="font-size:14px;color:var(--text-secondary)"><i class="fas fa-phone" style="color:var(--gold);width:20px;text-align:center"></i><a href="tel:${settings.shopPhone}" style="color:inherit;text-decoration:none">${escHtml(settings.shopPhone)}</a></div>` : ''}
+    ${settings.shopAddress ? `<div class="flex items-center gap-3" style="font-size:14px;color:var(--text-secondary)"><i class="fas fa-map-marker-alt" style="color:var(--gold);width:20px;text-align:center"></i>${escHtml(settings.shopAddress)}</div>` : ''}
+  `;
+
+  // روابط التواصل
+  const socialSection = document.getElementById('social-links-section');
+  const socialGrid = document.getElementById('social-links-grid');
+  const hasSocial = Object.values(settings.socialLinks).some(v => v);
+  if (hasSocial) {
+    socialSection.style.display = 'block';
+    socialGrid.innerHTML = Object.entries(settings.socialLinks).filter(([,v])=>v).map(([k,v]) => `
+      <a href="${v}" target="_blank" class="card glass flex items-center gap-3 px-5 py-3" style="text-decoration:none;color:var(--text-primary);transition:all 0.3s">
+        <i class="fab ${SOCIAL_ICONS[k]}" style="color:var(--gold);font-size:18px"></i>
+        <span style="font-size:13px;font-weight:600">${SOCIAL_LABELS[k]}</span>
+      </a>
+    `).join('');
+  } else {
+    socialSection.style.display = 'none';
+  }
+
+  // الصفحات التعريفية
+  const pagesContainer = document.getElementById('home-custom-pages');
+  if (settings.customPages && settings.customPages.length > 0) {
+    pagesContainer.innerHTML = settings.customPages.map(p => `
+      <div class="card glass max-w-3xl mx-auto mb-4 fade-up visible">
+        <h3 class="section-title mb-3">${escHtml(p.title)}</h3>
+        <div style="color:var(--text-secondary);line-height:1.9;font-size:14px;white-space:pre-wrap">${escHtml(p.content)}</div>
+      </div>
+    `).join('');
+  } else {
+    pagesContainer.innerHTML = '';
+  }
+
+  // سنة الفوتر
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+  // تفعيل تأثيرات الظهور
+  setTimeout(initFadeUp, 100);
+}
+
+function viewCustomerFromHome(id) {
+  navigateTo('search');
+  const customers = getCustomers();
+  const c = customers.find(x => x.id === id);
+  if (c) renderSearchResults([c]);
+}
+
+// ============================
+// صفحة إدخال المقاسات
+// ============================
+function renderAddForm() {
+  const groups = getGroups();
+  // حقول المقاسات
+  const grid = document.getElementById('add-measurements-grid');
+  grid.innerHTML = MEASUREMENT_FIELDS.map(f => `
+    <div>
+      <div class="label-text"><i class="fas ${f.icon} ml-1" style="color:var(--gold);font-size:10px"></i>${f.label}</div>
+      <input class="input-field" id="add-${f.key}" type="number" step="0.1" placeholder="${f.label}">
+    </div>
+  `).join('');
+  // تفاصيل الخياطة
+  const section = document.getElementById('add-tailoring-section');
+  if (groups.length > 0) {
+    section.style.display = 'block';
+    section.innerHTML = `
+      <h3 class="section-title mb-4"><i class="fas fa-cut ml-2" style="color:var(--gold)"></i>تفاصيل الخياطة</h3>
+      ${groups.map(g => `
+        <div class="mb-5">
+          <div class="label-text mb-2">${escHtml(g.name)}</div>
+          <div class="radio-group" id="add-group-${g.id}">
+            ${g.options.map(o => `<div class="radio-item" data-group="${g.id}" data-value="${escHtml(o)}" onclick="selectRadio(this)">${escHtml(o)}</div>`).join('')}
+          </div>
+        </div>
+      `).join('')}
+    `;
+  } else {
+    section.style.display = 'none';
+  }
+}
+
+function selectRadio(el) {
+  const groupId = el.dataset.group;
+  document.querySelectorAll(`[data-group="${groupId}"]`).forEach(r => r.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function handleAddCustomer(e) {
+  e.preventDefault();
+  const name = document.getElementById('add-name').value.trim();
+  const phone = document.getElementById('add-phone').value.trim();
+  const notes = document.getElementById('add-notes').value.trim();
+
+  if (!name || !phone) { showToast('يرجى ملء الاسم ورقم الهاتف', 'error'); return; }
+
+  // التحقق من تكرار رقم الهاتف
+  const customers = getCustomers();
+  if (customers.some(c => c.phone === phone)) {
+    showToast('يوجد عميل مسجل بنفس رقم الهاتف', 'error'); return;
+  }
+
+  // جمع المقاسات
+  const measurements = {};
+  MEASUREMENT_FIELDS.forEach(f => {
+    const v = document.getElementById('add-'+f.key).value;
+    if (v) measurements[f.key] = parseFloat(v);
+  });
+
+  // جمع تفاصيل الخياطة
+  const groups = getGroups();
+  const tailoring = {};
+  groups.forEach(g => {
+    const sel = document.querySelector(`#add-group-${g.id} .radio-item.selected`);
+    if (sel) tailoring[g.id] = sel.dataset.value;
+  });
+
+  const customer = {
+    id: generateId(),
+    name, phone, notes,
+    measurements,
+    tailoring,
+    dateAdded: new Date().toISOString(),
+    dateUpdated: new Date().toISOString()
+  };
+
+  customers.push(customer);
+  saveCustomers(customers);
+  showToast('تم حفظ مقاسات العميل بنجاح');
+
+  // إعادة تعيين النموذج
+  e.target.reset();
+  document.querySelectorAll('.radio-item.selected').forEach(r => r.classList.remove('selected'));
+}
+
+// ============================
+// صفحة البحث
+// ============================
+function handleSearch() {
+  const phone = document.getElementById('search-phone').value.trim();
+  if (!phone) { showToast('يرجى إدخال رقم الهاتف', 'error'); return; }
+  const customers = getCustomers();
+  const results = customers.filter(c => c.phone.includes(phone));
+  renderSearchResults(results);
+}
+
+function renderSearchResults(results) {
+  const container = document.getElementById('search-results');
+  if (results.length === 0) {
+    container.innerHTML = `
+      <div class="card glass text-center py-12">
+        <i class="fas fa-search text-3xl mb-4" style="color:var(--text-muted)"></i>
+        <p style="color:var(--text-secondary)">لا توجد نتائج مطابقة</p>
+      </div>`;
+    return;
+  }
+  const groups = getGroups();
+  container.innerHTML = results.map(c => `
+    <div class="card glass mb-4">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div>
+          <h3 class="text-lg font-bold">${escHtml(c.name)}</h3>
+          <div style="font-size:13px;color:var(--text-muted)" class="flex items-center gap-2">
+            <span style="color:var(--gold);font-size:11px;background:rgba(201,168,76,0.1);padding:1px 8px;border-radius:4px">${c.id}</span>
+            <i class="fas fa-phone" style="font-size:10px"></i>${escHtml(c.phone)}
+          </div>
+        </div>
+        <span style="font-size:11px;color:var(--text-muted)">${formatDate(c.dateUpdated)}</span>
+      </div>
+      ${c.notes ? `<div class="mb-4" style="font-size:13px;color:var(--text-secondary);background:var(--bg-card);padding:8px 12px;border-radius:8px"><i class="fas fa-sticky-note ml-1" style="color:var(--gold)"></i>${escHtml(c.notes)}</div>` : ''}
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        ${MEASUREMENT_FIELDS.map(f => `
+          <div style="background:var(--bg-card);padding:10px;border-radius:10px;text-align:center">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">${f.label}</div>
+            <div style="font-size:16px;font-weight:700;color:var(--gold)">${c.measurements?.[f.key] || '-'}</div>
+          </div>
+        `).join('')}
+      </div>
+      ${Object.keys(c.tailoring||{}).length > 0 ? `
+        <div class="mb-2"><div class="label-text mb-2">تفاصيل الخياطة</div>
+          <div class="flex flex-wrap gap-2">
+            ${Object.entries(c.tailoring).map(([gid, val]) => {
+              const grp = groups.find(g => g.id === gid);
+              return `<span style="font-size:12px;background:rgba(201,168,76,0.08);color:var(--gold);padding:4px 12px;border-radius:8px;border:1px solid var(--border-gold)">${grp ? grp.name+': ' : ''}${escHtml(val)}</span>`;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+}
+
+// ============================
+// لوحة الإدارة - التابويبات
+// ============================
+function switchAdminTab(tab) {
+  state.adminTab = tab;
+  document.querySelectorAll('#admin-tabs .tab-btn').forEach((b,i) => {
+    const tabs = ['customers','groups','settings','pages','social','backup'];
+    b.classList.toggle('active', tabs[i] === tab);
+  });
+  renderAdminTab();
+}
+
+function renderAdminTab() {
+  const container = document.getElementById('admin-tab-content');
+  switch(state.adminTab) {
+    case 'customers': renderAdminCustomers(container); break;
+    case 'groups': renderAdminGroups(container); break;
+    case 'settings': renderAdminSettings(container); break;
+    case 'pages': renderAdminPages(container); break;
+    case 'social': renderAdminSocial(container); break;
+    case 'backup': renderAdminBackup(container); break;
+  }
+}
+
+// ============================
+// إدارة العملاء
+// ============================
+function renderAdminCustomers(container) {
+  const customers = getCustomers();
+  container.innerHTML = `
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+      <div class="flex items-center gap-3">
+        <span style="font-size:14px;color:var(--text-secondary)">إجمالي العملاء: <strong style="color:var(--gold)">${customers.length}</strong></span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button class="btn-gold" onclick="showAddCustomerModal()"><i class="fas fa-plus"></i>إضافة عميل جديد</button>
+        <button class="btn-outline" onclick="exportExcel()"><i class="fas fa-file-excel"></i>Excel</button>
+        <button class="btn-outline" onclick="exportAllPDF()"><i class="fas fa-file-pdf"></i>PDF</button>
+      </div>
+    </div>
+    <div class="mb-4">
+      <input class="input-field" id="admin-search" placeholder="بحث بالاسم أو رقم الهاتف..." oninput="filterAdminCustomers()">
+    </div>
+    <div class="card glass" style="overflow-x:auto;padding:0">
+      <table class="data-table" id="customers-table">
+        <thead>
+          <tr>
+            <th>#</th><th>الاسم</th><th>الهاتف</th><th class="hide-mobile">المقاسات</th><th class="hide-mobile">التفاصيل</th><th>التاريخ</th><th>العمليات</th>
+          </tr>
+        </thead>
+        <tbody id="customers-tbody"></tbody>
+      </table>
+    </div>
+    <div id="no-customers-msg" style="display:${customers.length?'none':'block'}" class="text-center py-16">
+      <i class="fas fa-users text-4xl mb-4" style="color:var(--text-muted)"></i>
+      <p style="color:var(--text-secondary)">لا يوجد عملاء مسجلين بعد</p>
+    </div>
+  `;
+  renderCustomersTable(customers);
+}
+
+function renderCustomersTable(customers) {
+  const tbody = document.getElementById('customers-tbody');
+  const noMsg = document.getElementById('no-customers-msg');
+  if (!tbody) return;
+  if (customers.length === 0) {
+    tbody.innerHTML = '';
+    if(noMsg) noMsg.style.display = 'block';
+    return;
+  }
+  if(noMsg) noMsg.style.display = 'none';
+  const groups = getGroups();
+  tbody.innerHTML = customers.map((c, i) => `
+    <tr>
+      <td style="color:var(--text-muted);font-size:11px">${c.id}</td>
+      <td><strong style="font-size:13px">${escHtml(c.name)}</strong></td>
+      <td>
+        <span style="font-size:13px">${escHtml(c.phone)}</span>
+        <button onclick="copyText('${escHtml(c.phone)}')" title="نسخ" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:11px;margin-right:4px"><i class="fas fa-copy"></i></button>
+      </td>
+      <td class="hide-mobile" style="font-size:11px;color:var(--text-secondary);max-width:200px">
+        ${MEASUREMENT_FIELDS.filter(f=>c.measurements?.[f.key]).map(f=>`${f.label}:${c.measurements[f.key]}`).join(' | ') || '-'}
+      </td>
+      <td class="hide-mobile" style="font-size:11px;color:var(--text-secondary);max-width:200px">
+        ${Object.entries(c.tailoring||{}).map(([gid,val])=>{const g=groups.find(x=>x.id===gid);return g?g.name+':'+escHtml(val):'';}).filter(Boolean).join(' | ') || '-'}
+      </td>
+      <td style="font-size:11px;color:var(--text-muted);white-space:nowrap">${formatDate(c.dateAdded)}</td>
+      <td>
+        <div class="flex gap-1 flex-wrap">
+          <button class="btn-ghost" onclick="showEditCustomerModal('${c.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
+          <button class="btn-ghost" onclick="showCustomerQR('${c.id}')" title="QR"><i class="fas fa-qrcode"></i></button>
+          <button class="btn-ghost" onclick="shareWhatsApp('${c.id}')" title="واتساب"><i class="fab fa-whatsapp"></i></button>
+          <button class="btn-ghost" onclick="printCustomer('${c.id}')" title="طباعة"><i class="fas fa-print"></i></button>
+          <button class="btn-danger" onclick="confirmDeleteCustomer('${c.id}')" title="حذف"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterAdminCustomers() {
+  const q = document.getElementById('admin-search').value.trim().toLowerCase();
+  const customers = getCustomers();
+  const filtered = q ? customers.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q)) : customers;
+  renderCustomersTable(filtered);
+}
+
+// مودال إضافة عميل من الإدارة
+function showAddCustomerModal() {
+  const groups = getGroups();
+  showModal(`
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-lg font-bold"><i class="fas fa-user-plus ml-2" style="color:var(--gold)"></i>إضافة عميل جديد</h3>
+      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px"><i class="fas fa-times"></i></button>
+    </div>
+    <form onsubmit="handleAdminAddCustomer(event)">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        <div><div class="label-text">الاسم الكامل</div><input class="input-field" id="modal-name" required placeholder="اسم العميل"></div>
+        <div><div class="label-text">رقم الهاتف</div><input class="input-field" id="modal-phone" required placeholder="رقم الهاتف" type="tel"></div>
+      </div>
+      <div class="mb-4"><div class="label-text">ملاحظات</div><textarea class="input-field" id="modal-notes" rows="2" placeholder="ملاحظات..."></textarea></div>
+      <div class="label-text mb-2">المقاسات</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        ${MEASUREMENT_FIELDS.map(f=>`<div><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">${f.label}</div><input class="input-field" id="modal-${f.key}" type="number" step="0.1" style="padding:8px 12px;font-size:13px"></div>`).join('')}
+      </div>
+      ${groups.length > 0 ? `
+        <div class="label-text mb-2">تفاصيل الخياطة</div>
+        ${groups.map(g=>`
+          <div class="mb-3">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${escHtml(g.name)}</div>
+            <div class="radio-group" id="modal-group-${g.id}">
+              ${g.options.map(o=>`<div class="radio-item" data-group="${g.id}" data-value="${escHtml(o)}" onclick="selectRadio(this)" style="font-size:12px;padding:6px 12px">${escHtml(o)}</div>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+      ` : ''}
+      <button type="submit" class="btn-gold w-full justify-center mt-4"><i class="fas fa-save"></i>حفظ العميل</button>
+    </form>
+  `);
+}
+
+function handleAdminAddCustomer(e) {
+  e.preventDefault();
+  const name = document.getElementById('modal-name').value.trim();
+  const phone = document.getElementById('modal-phone').value.trim();
+  const notes = document.getElementById('modal-notes').value.trim();
+  if (!name || !phone) { showToast('يرجى ملء الحقول المطلوبة','error'); return; }
+  const customers = getCustomers();
+  if (customers.some(c=>c.phone===phone)) { showToast('رقم الهاتف مسجل مسبقاً','error'); return; }
+  const measurements = {};
+  MEASUREMENT_FIELDS.forEach(f=>{const v=document.getElementById('modal-'+f.key).value;if(v)measurements[f.key]=parseFloat(v);});
+  const groups = getGroups();
+  const tailoring = {};
+  groups.forEach(g=>{const sel=document.querySelector(`#modal-group-${g.id} .radio-item.selected`);if(sel)tailoring[g.id]=sel.dataset.value;});
+  customers.push({ id:generateId(), name, phone, notes, measurements, tailoring, dateAdded:new Date().toISOString(), dateUpdated:new Date().toISOString() });
+  saveCustomers(customers);
+  closeModal();
+  showToast('تم إضافة العميل بنجاح');
+  renderAdminTab();
+}
+
+// مودال تعديل عميل
+function showEditCustomerModal(id) {
+  const customers = getCustomers();
+  const c = customers.find(x=>x.id===id);
+  if(!c) return;
+  const groups = getGroups();
+  showModal(`
+    <div class="flex items-center justify-between mb-6">
+      <h3 class="text-lg font-bold"><i class="fas fa-edit ml-2" style="color:var(--gold)"></i>تعديل بيانات العميل</h3>
+      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px"><i class="fas fa-times"></i></button>
+    </div>
+    <form onsubmit="handleEditCustomer(event,'${id}')">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        <div><div class="label-text">الاسم الكامل</div><input class="input-field" id="edit-name" required value="${escHtml(c.name)}"></div>
+        <div><div class="label-text">رقم الهاتف</div><input class="input-field" id="edit-phone" required value="${escHtml(c.phone)}" type="tel"></div>
+      </div>
+      <div class="mb-4"><div class="label-text">ملاحظات</div><textarea class="input-field" id="edit-notes" rows="2">${escHtml(c.notes)}</textarea></div>
+      <div class="label-text mb-2">المقاسات</div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        ${MEASUREMENT_FIELDS.map(f=>`<div><div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">${f.label}</div><input class="input-field" id="edit-${f.key}" type="number" step="0.1" style="padding:8px 12px;font-size:13px" value="${c.measurements?.[f.key]||''}"></div>`).join('')}
+      </div>
+      ${groups.length > 0 ? `
+        <div class="label-text mb-2">تفاصيل الخياطة</div>
+        ${groups.map(g=>`
+          <div class="mb-3">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${escHtml(g.name)}</div>
+            <div class="radio-group" id="edit-group-${g.id}">
+              ${g.options.map(o=>`<div class="radio-item${c.tailoring?.[g.id]===o?' selected':''}" data-group="edit-${g.id}" data-value="${escHtml(o)}" onclick="selectRadio(this)" style="font-size:12px;padding:6px 12px">${escHtml(o)}</div>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+      ` : ''}
+      <button type="submit" class="btn-gold w-full justify-center mt-4"><i class="fas fa-save"></i>حفظ التعديلات</button>
+    </form>
+  `);
+}
+
+function handleEditCustomer(e, id) {
+  e.preventDefault();
+  const customers = getCustomers();
+  const idx = customers.findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  const name = document.getElementById('edit-name').value.trim();
+  const phone = document.getElementById('edit-phone').value.trim();
+  const notes = document.getElementById('edit-notes').value.trim();
+  if(!name||!phone){showToast('يرجى ملء الحقول المطلوبة','error');return;}
+  // التحقق من تكرار الهاتف مع استثناء العميل الحالي
+  if(customers.some((c,i)=>i!==idx&&c.phone===phone)){showToast('رقم الهاتف مسجل لعميل آخر','error');return;}
+  const measurements = {};
+  MEASUREMENT_FIELDS.forEach(f=>{const v=document.getElementById('edit-'+f.key).value;if(v)measurements[f.key]=parseFloat(v);});
+  const groups = getGroups();
+  const tailoring = {};
+  groups.forEach(g=>{const sel=document.querySelector(`#edit-group-${g.id} .radio-item.selected`);if(sel)tailoring[g.id]=sel.dataset.value;});
+  customers[idx] = {...customers[idx], name, phone, notes, measurements, tailoring, dateUpdated:new Date().toISOString()};
+  saveCustomers(customers);
+  closeModal();
+  showToast('تم تعديل بيانات العميل');
+  renderAdminTab();
+}
+
+// حذف عميل
+function confirmDeleteCustomer(id) {
+  const customers = getCustomers();
+  const c = customers.find(x=>x.id===id);
+  if(!c) return;
+  showModal(`
+    <div class="text-center py-4">
+      <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(239,68,68,0.1)">
+        <i class="fas fa-exclamation-triangle text-2xl" style="color:#ef4444"></i>
+      </div>
+      <h3 class="text-lg font-bold mb-2">تأكيد الحذف</h3>
+      <p style="color:var(--text-secondary);font-size:14px">هل أنت متأكد من حذف العميل <strong>${escHtml(c.name)}</strong>؟<br>لا يمكن التراجع عن هذا الإجراء.</p>
+      <div class="flex gap-3 mt-6 justify-center">
+        <button class="btn-danger px-8" onclick="deleteCustomer('${id}')"><i class="fas fa-trash"></i>حذف</button>
+        <button class="btn-outline" onclick="closeModal()">إلغاء</button>
+      </div>
+    </div>
+  `);
+}
+function deleteCustomer(id) {
+  let customers = getCustomers();
+  customers = customers.filter(x=>x.id!==id);
+  saveCustomers(customers);
+  closeModal();
+  showToast('تم حذف العميل');
+  renderAdminTab();
+}
+
+// QR Code
+function showCustomerQR(id) {
+  const customers = getCustomers();
+  const c = customers.find(x=>x.id===id);
+  if(!c) return;
+  const url = window.location.origin + window.location.pathname + '#customer=' + id;
+  showModal(`
+    <div class="text-center py-4">
+      <h3 class="text-lg font-bold mb-1">${escHtml(c.name)}</h3>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">${c.id}</p>
+      <div id="qr-code-container" class="flex justify-center mb-4"></div>
+      <p style="font-size:11px;color:var(--text-muted);word-break:break-all">${url}</p>
+    </div>
+  `);
+  setTimeout(()=>{
+    const qrContainer = document.getElementById('qr-code-container');
+    if(qrContainer) {
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, { text:url, width:200, height:200, colorDark:'#C9A84C', colorLight:'#0a0a0a', correctLevel:QRCode.CorrectLevel.M });
+    }
+  }, 100);
+}
+
+// مشاركة واتساب
+function shareWhatsApp(id) {
+  const customers = getCustomers();
+  const c = customers.find(x=>x.id===id);
+  if(!c) return;
+  const groups = getGroups();
+  let msg = `*${getSettings().shopName}*\n`;
+  msg += `العميل: ${c.name}\n`;
+  msg += `الهاتف: ${c.phone}\n`;
+  msg += `━━━━━━━━━━━━━\n`;
+  msg += `*المقاسات:*\n`;
+  MEASUREMENT_FIELDS.forEach(f=>{ if(c.measurements?.[f.key]) msg += `${f.label}: ${c.measurements[f.key]}\n`; });
+  msg += `━━━━━━━━━━━━━\n`;
+  msg += `*تفاصيل الخياطة:*\n`;
+  Object.entries(c.tailoring||{}).forEach(([gid,val])=>{
+    const g = groups.find(x=>x.id===gid);
+    if(g) msg += `${g.name}: ${val}\n`;
+  });
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+}
+
+// طباعة PDF لعميل واحد
+function printCustomer(id) {
+  const customers = getCustomers();
+  const c = customers.find(x=>x.id===id);
+  if(!c) return;
+  generatePrintHTML([c]);
+}
+
+// طباعة PDF لكل العملاء
+function exportAllPDF() {
+  const customers = getCustomers();
+  if(customers.length===0){showToast('لا يوجد عملاء','error');return;}
+  generatePrintHTML(customers);
+}
+
+function generatePrintHTML(customers) {
+  const settings = getSettings();
+  const groups = getGroups();
+  const printArea = document.getElementById('print-area');
+  printArea.innerHTML = customers.map(c => `
+    <div style="border:2px solid #C9A84C;border-radius:16px;padding:30px;margin-bottom:30px;font-family:'Cairo',sans-serif;direction:rtl">
+      <div style="text-align:center;border-bottom:2px solid #C9A84C;padding-bottom:16px;margin-bottom:20px">
+        <h1 style="font-size:24px;color:#C9A84C;margin:0">${escHtml(settings.shopName)}</h1>
+        ${settings.shopPhone?`<p style="font-size:13px;color:#666;margin:4px 0">${escHtml(settings.shopPhone)}</p>`:''}
+        ${settings.shopAddress?`<p style="font-size:13px;color:#666;margin:0">${escHtml(settings.shopAddress)}</p>`:''}
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div><strong>العميل:</strong> ${escHtml(c.name)}</div>
+        <div><strong>الهاتف:</strong> ${escHtml(c.phone)}</div>
+        <div><strong>الرقم:</strong> ${c.id}</div>
+        <div><strong>التاريخ:</strong> ${formatDate(c.dateUpdated)}</div>
+      </div>
+      ${c.notes?`<div style="background:#f5f5f5;padding:8px 12px;border-radius:8px;margin-bottom:16px;font-size:13px"><strong>ملاحظات:</strong> ${escHtml(c.notes)}</div>`:''}
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
+        <thead><tr style="background:#C9A84C;color:#000">
+          ${MEASUREMENT_FIELDS.map(f=>`<th style="padding:8px;font-size:12px;border:1px solid #ddd">${f.label}</th>`).join('')}
+        </tr></thead>
+        <tbody><tr style="text-align:center">
+          ${MEASUREMENT_FIELDS.map(f=>`<td style="padding:8px;font-size:14px;font-weight:bold;border:1px solid #ddd">${c.measurements?.[f.key]||'-'}</td>`).join('')}
+        </tr></tbody>
+      </table>
+      ${Object.keys(c.tailoring||{}).length>0?`
+        <h3 style="font-size:15px;color:#C9A84C;margin-bottom:10px">تفاصيل الخياطة</h3>
+        <table style="width:100%;border-collapse:collapse">
+          ${Object.entries(c.tailoring).map(([gid,val])=>{
+            const g=groups.find(x=>x.id===gid);
+            return g?`<tr><td style="padding:6px 10px;border:1px solid #ddd;font-size:13px;font-weight:bold;background:#f9f9f9">${escHtml(g.name)}</td><td style="padding:6px 10px;border:1px solid #ddd;font-size:13px">${escHtml(val)}</td></tr>`:'';
+          }).join('')}
+        </table>
+      `:''}
+    </div>
+  `).join('');
+  window.print();
+}
+
+// تصدير Excel
+function exportExcel() {
+  const customers = getCustomers();
+  if(customers.length===0){showToast('لا يوجد عملاء','error');return;}
+  const groups = getGroups();
+  const headers = ['الرقم','الاسم','الهاتف','تاريخ الإضافة',...MEASUREMENT_FIELDS.map(f=>f.label),...groups.map(g=>g.name),'ملاحظات'];
+  const rows = customers.map(c=>[
+    c.id, c.name, c.phone, formatDate(c.dateAdded),
+    ...MEASUREMENT_FIELDS.map(f=>c.measurements?.[f.key]||''),
+    ...groups.map(g=>c.tailoring?.[g.id]||''),
+    c.notes||''
+  ]);
+  const ws = XLSX.utils.aoa_to_sheet([headers,...rows]);
+  // ضبط عرض الأعمدة
+  ws['!cols'] = headers.map(()=>({wch:16}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'العملاء');
+  XLSX.writeFile(wb, 'خياط_اليرموك_العملاء.xlsx');
+  showToast('تم تصدير الملف بنجاح');
+}
+
+// نسخ نص
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(()=>showToast('تم النسخ','info')).catch(()=>showToast('فشل النسخ','error'));
+}
+
+// ============================
+// إدارة المجموعات الديناميكية
+// ============================
+function renderAdminGroups(container) {
+  const groups = getGroups();
+  container.innerHTML = `
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="section-title">المجموعات الديناميكية</h3>
+      <button class="btn-gold" onclick="showAddGroupModal()"><i class="fas fa-plus"></i>إضافة مجموعة</button>
+    </div>
+    ${groups.length === 0 ? `
+      <div class="card glass text-center py-12">
+        <i class="fas fa-layer-group text-3xl mb-4" style="color:var(--text-muted)"></i>
+        <p style="color:var(--text-secondary)">لا توجد مجموعات بعد</p>
+      </div>
+    ` : groups.map(g => `
+      <div class="card glass mb-4">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="font-bold text-base">${escHtml(g.name)}</h4>
+          <div class="flex gap-2">
+            <button class="btn-ghost" onclick="showEditGroupModal('${g.id}')"><i class="fas fa-edit"></i>تعديل</button>
+            <button class="btn-danger" onclick="confirmDeleteGroup('${g.id}')"><i class="fas fa-trash"></i>حذف</button>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          ${g.options.map(o=>`
+            <span style="font-size:12px;background:rgba(201,168,76,0.08);color:var(--gold);padding:5px 14px;border-radius:8px;border:1px solid var(--border-gold)">
+              ${escHtml(o)}
+              <button onclick="removeGroupOption('${g.id}','${escHtml(o)}')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);margin-right:4px;font-size:10px"><i class="fas fa-times"></i></button>
+            </span>
+          `).join('')}
+        </div>
+        <div class="mt-3 flex gap-2">
+          <input class="input-field flex-1" id="new-opt-${g.id}" placeholder="إضافة خيار جديد..." style="padding:8px 12px;font-size:13px" onkeydown="if(event.key==='Enter')addGroupOption('${g.id}')">
+          <button class="btn-outline" onclick="addGroupOption('${g.id}')" style="padding:8px 14px;font-size:13px"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function showAddGroupModal() {
+  showModal(`
+    <h3 class="text-lg font-bold mb-4"><i class="fas fa-layer-group ml-2" style="color:var(--gold)"></i>إضافة مجموعة جديدة</h3>
+    <div class="mb-4"><div class="label-text">اسم المجموعة</div><input class="input-field" id="new-group-name" placeholder="مثال: نوع القماش"></div>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-outline" onclick="closeModal()">إلغاء</button>
+      <button class="btn-gold" onclick="addGroup()"><i class="fas fa-plus"></i>إضافة</button>
+    </div>
+  `);
+}
+function addGroup() {
+  const name = document.getElementById('new-group-name').value.trim();
+  if(!name){showToast('يرجى إدخال اسم المجموعة','error');return;}
+  const groups = getGroups();
+  groups.push({id:'g'+Date.now(), name, options:[]});
+  saveGroups(groups);
+  closeModal();
+  showToast('تم إضافة المجموعة');
+  renderAdminTab();
+}
+function showEditGroupModal(id) {
+  const groups = getGroups();
+  const g = groups.find(x=>x.id===id);
+  if(!g) return;
+  showModal(`
+    <h3 class="text-lg font-bold mb-4"><i class="fas fa-edit ml-2" style="color:var(--gold)"></i>تعديل المجموعة</h3>
+    <div class="mb-4"><div class="label-text">اسم المجموعة</div><input class="input-field" id="edit-group-name" value="${escHtml(g.name)}"></div>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-outline" onclick="closeModal()">إلغاء</button>
+      <button class="btn-gold" onclick="editGroupName('${id}')"><i class="fas fa-save"></i>حفظ</button>
+    </div>
+  `);
+}
+function editGroupName(id) {
+  const name = document.getElementById('edit-group-name').value.trim();
+  if(!name){showToast('يرجى إدخال الاسم','error');return;}
+  const groups = getGroups();
+  const g = groups.find(x=>x.id===id);
+  if(g) g.name = name;
+  saveGroups(groups);
+  closeModal();
+  showToast('تم تعديل اسم المجموعة');
+  renderAdminTab();
+}
+function confirmDeleteGroup(id) {
+  const groups = getGroups();
+  const g = groups.find(x=>x.id===id);
+  showModal(`
+    <div class="text-center py-4">
+      <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(239,68,68,0.1)">
+        <i class="fas fa-exclamation-triangle text-2xl" style="color:#ef4444"></i>
+      </div>
+      <h3 class="text-lg font-bold mb-2">حذف المجموعة</h3>
+      <p style="color:var(--text-secondary);font-size:14px">هل تريد حذف مجموعة "<strong>${escHtml(g?.name)}</strong>"؟<br>سيتم حذف جميع الخيارات المرتبطة.</p>
+      <div class="flex gap-3 mt-6 justify-center">
+        <button class="btn-danger px-8" onclick="deleteGroup('${id}')"><i class="fas fa-trash"></i>حذف</button>
+        <button class="btn-outline" onclick="closeModal()">إلغاء</button>
+      </div>
+    </div>
+  `);
+}
+function deleteGroup(id) {
+  let groups = getGroups();
+  groups = groups.filter(x=>x.id!==id);
+  saveGroups(groups);
+  closeModal();
+  showToast('تم حذف المجموعة');
+  renderAdminTab();
+}
+function addGroupOption(gid) {
+  const input = document.getElementById('new-opt-'+gid);
+  if(!input) return;
+  const val = input.value.trim();
+  if(!val){showToast('يرجى إدخال الخيار','error');return;}
+  const groups = getGroups();
+  const g = groups.find(x=>x.id===gid);
+  if(g && !g.options.includes(val)) { g.options.push(val); saveGroups(groups); showToast('تم إضافة الخيار'); renderAdminTab(); }
+}
+function removeGroupOption(gid, opt) {
+  const groups = getGroups();
+  const g = groups.find(x=>x.id===gid);
+  if(g) { g.options = g.options.filter(o=>o!==opt); saveGroups(groups); renderAdminTab(); }
+}
+
+// ============================
+// إعدادات المحل
+// ============================
+function renderAdminSettings(container) {
+  const s = getSettings();
+  container.innerHTML = `
+    <div class="card glass max-w-2xl">
+      <h3 class="section-title mb-6"><i class="fas fa-store ml-2" style="color:var(--gold)"></i>إعدادات معلومات المحل</h3>
+      <form onsubmit="handleSaveSettings(event)">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div><div class="label-text">اسم المحل</div><input class="input-field" id="set-name" value="${escHtml(s.shopName)}"></div>
+          <div><div class="label-text">رقم الهاتف</div><input class="input-field" id="set-phone" value="${escHtml(s.shopPhone)}" type="tel"></div>
+        </div>
+        <div class="mb-4"><div class="label-text">العنوان</div><input class="input-field" id="set-address" value="${escHtml(s.shopAddress)}"></div>
+        <div class="mb-4"><div class="label-text">وصف المحل</div><textarea class="input-field" id="set-desc" rows="3">${escHtml(s.shopDescription)}</textarea></div>
+        <div class="gold-divider"></div>
+        <h4 class="font-bold mb-3" style="font-size:14px"><i class="fas fa-lock ml-2" style="color:var(--gold)"></i>تغيير كلمة المرور</h4>
+        <div class="mb-4"><div class="label-text">كلمة المرور الجديدة</div><input class="input-field" id="set-pass" type="password" placeholder="اتركه فارغاً إذا لم ترد التغيير"></div>
+        <button type="submit" class="btn-gold"><i class="fas fa-save"></i>حفظ الإعدادات</button>
+      </form>
+    </div>
+  `;
+}
+function handleSaveSettings(e) {
+  e.preventDefault();
+  const s = getSettings();
+  s.shopName = document.getElementById('set-name').value.trim() || s.shopName;
+  s.shopPhone = document.getElementById('set-phone').value.trim();
+  s.shopAddress = document.getElementById('set-address').value.trim();
+  s.shopDescription = document.getElementById('set-desc').value.trim();
+  const newPass = document.getElementById('set-pass').value;
+  if(newPass) s.adminPassword = newPass;
+  saveSettings(s);
+  showToast('تم حفظ الإعدادات بنجاح');
+  // تحديث اسم المحل في الهيدر
+  document.querySelector('.logo-text').textContent = s.shopName;
+}
+
+// ============================
+// الصفحات التعريفية
+// ============================
+function renderAdminPages(container) {
+  const s = getSettings();
+  const pages = s.customPages || [];
+  container.innerHTML = `
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="section-title">الصفحات التعريفية</h3>
+      <button class="btn-gold" onclick="showAddPageModal()"><i class="fas fa-plus"></i>إضافة صفحة</button>
+    </div>
+    ${pages.length===0?`
+      <div class="card glass text-center py-12">
+        <i class="fas fa-file-alt text-3xl mb-4" style="color:var(--text-muted)"></i>
+        <p style="color:var(--text-secondary)">لا توجد صفحات تعريفية</p>
+      </div>
+    `:pages.map((p,i)=>`
+      <div class="card glass mb-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="font-bold">${escHtml(p.title)}</h4>
+            <p style="font-size:12px;color:var(--text-muted);max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(p.content)}</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn-ghost" onclick="showEditPageModal(${i})"><i class="fas fa-edit"></i></button>
+            <button class="btn-danger" onclick="deletePage(${i})"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+function showAddPageModal() {
+  showModal(`
+    <h3 class="text-lg font-bold mb-4"><i class="fas fa-file-alt ml-2" style="color:var(--gold)"></i>إضافة صفحة تعريفية</h3>
+    <div class="mb-3"><div class="label-text">عنوان الصفحة</div><input class="input-field" id="page-title" placeholder="عنوان الصفحة"></div>
+    <div class="mb-4"><div class="label-text">محتوى الصفحة</div><textarea class="input-field" id="page-content" rows="6" placeholder="محتوى الصفحة..."></textarea></div>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-outline" onclick="closeModal()">إلغاء</button>
+      <button class="btn-gold" onclick="addPage()"><i class="fas fa-plus"></i>إضافة</button>
+    </div>
+  `);
+}
+function addPage() {
+  const title = document.getElementById('page-title').value.trim();
+  const content = document.getElementById('page-content').value.trim();
+  if(!title){showToast('يرجى إدخال العنوان','error');return;}
+  const s = getSettings();
+  if(!s.customPages) s.customPages = [];
+  s.customPages.push({title, content});
+  saveSettings(s);
+  closeModal();
+  showToast('تم إضافة الصفحة');
+  renderAdminTab();
+}
+function showEditPageModal(idx) {
+  const s = getSettings();
+  const p = s.customPages[idx];
+  if(!p) return;
+  showModal(`
+    <h3 class="text-lg font-bold mb-4"><i class="fas fa-edit ml-2" style="color:var(--gold)"></i>تعديل الصفحة</h3>
+    <div class="mb-3"><div class="label-text">عنوان الصفحة</div><input class="input-field" id="page-title" value="${escHtml(p.title)}"></div>
+    <div class="mb-4"><div class="label-text">محتوى الصفحة</div><textarea class="input-field" id="page-content" rows="6">${escHtml(p.content)}</textarea></div>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-outline" onclick="closeModal()">إلغاء</button>
+      <button class="btn-gold" onclick="editPage(${idx})"><i class="fas fa-save"></i>حفظ</button>
+    </div>
+  `);
+}
+function editPage(idx) {
+  const s = getSettings();
+  s.customPages[idx].title = document.getElementById('page-title').value.trim();
+  s.customPages[idx].content = document.getElementById('page-content').value.trim();
+  saveSettings(s);
+  closeModal();
+  showToast('تم تعديل الصفحة');
+  renderAdminTab();
+}
+function deletePage(idx) {
+  const s = getSettings();
+  s.customPages.splice(idx, 1);
+  saveSettings(s);
+  showToast('تم حذف الصفحة');
+  renderAdminTab();
+}
+
+// ============================
+// روابط التواصل الاجتماعي
+// ============================
+function renderAdminSocial(container) {
+  const s = getSettings();
+  container.innerHTML = `
+    <div class="card glass max-w-2xl">
+      <h3 class="section-title mb-6"><i class="fas fa-share-alt ml-2" style="color:var(--gold)"></i>روابط التواصل الاجتماعي</h3>
+      <form onsubmit="handleSaveSocial(event)">
+        ${Object.entries(SOCIAL_LABELS).map(([k,label])=>`
+          <div class="mb-4">
+            <div class="label-text"><i class="fab ${SOCIAL_ICONS[k]} ml-1" style="color:var(--gold)"></i>${label}</div>
+            <input class="input-field" id="social-${k}" value="${escHtml(s.socialLinks?.[k]||'')}" placeholder="رابط ${label}" dir="ltr">
+          </div>
+        `).join('')}
+        <button type="submit" class="btn-gold"><i class="fas fa-save"></i>حفظ الروابط</button>
+      </form>
+    </div>
+  `;
+}
+function handleSaveSocial(e) {
+  e.preventDefault();
+  const s = getSettings();
+  s.socialLinks = {};
+  Object.keys(SOCIAL_LABELS).forEach(k=>{
+    s.socialLinks[k] = document.getElementById('social-'+k).value.trim();
+  });
+  saveSettings(s);
+  showToast('تم حفظ الروابط بنجاح');
+}
+
+// ============================
+// النسخ الاحتياطي
+// ============================
+function renderAdminBackup(container) {
+  const customers = getCustomers();
+  const settings = getSettings();
+  const groups = getGroups();
+  const size = new Blob([JSON.stringify({customers,settings,groups})]).size;
+  container.innerHTML = `
+    <div class="max-w-2xl">
+      <div class="card glass mb-4">
+        <h3 class="section-title mb-4"><i class="fas fa-database ml-2" style="color:var(--gold)"></i>معلومات قاعدة البيانات</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+          <div style="text-align:center"><div style="font-size:24px;font-weight:900;color:var(--gold)">${customers.length}</div><div class="label-text">عميل</div></div>
+          <div style="text-align:center"><div style="font-size:24px;font-weight:900;color:var(--gold)">${groups.length}</div><div class="label-text">مجموعة</div></div>
+          <div style="text-align:center"><div style="font-size:24px;font-weight:900;color:var(--gold)">${(size/1024).toFixed(1)} KB</div><div class="label-text">حجم البيانات</div></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card glass text-center py-8">
+          <i class="fas fa-download text-3xl mb-4" style="color:var(--gold)"></i>
+          <h4 class="font-bold mb-2">تصدير نسخة احتياطية</h4>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">تحميل جميع البيانات كملف JSON</p>
+          <button class="btn-gold" onclick="exportBackup()"><i class="fas fa-download"></i>تصدير</button>
+        </div>
+        <div class="card glass text-center py-8">
+          <i class="fas fa-upload text-3xl mb-4" style="color:var(--gold)"></i>
+          <h4 class="font-bold mb-2">استيراد نسخة احتياطية</h4>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">رفع ملف JSON لاستعادة البيانات</p>
+          <button class="btn-outline" onclick="document.getElementById('backup-file').click()"><i class="fas fa-upload"></i>استيراد</button>
+          <input type="file" id="backup-file" accept=".json" style="display:none" onchange="importBackup(event)">
+        </div>
+      </div>
+      <div class="card glass mt-4 text-center py-6">
+        <i class="fas fa-exclamation-triangle text-2xl mb-3" style="color:#ef4444"></i>
+        <h4 class="font-bold mb-2" style="color:#ef4444">مسح جميع البيانات</h4>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">حذف جميع العملاء والإعدادات نهائياً</p>
+        <button class="btn-danger" onclick="confirmClearAll()"><i class="fas fa-trash"></i>مسح الكل</button>
+      </div>
+    </div>
+  `;
+}
+
+function exportBackup() {
+  const data = { customers:getCustomers(), settings:getSettings(), groups:getGroups(), exportDate:new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `yarmouk_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('تم تصدير النسخة الاحتياطية');
+}
+
+function importBackup(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if(data.customers) saveCustomers(data.customers);
+      if(data.settings) saveSettings(data.settings);
+      if(data.groups) saveGroups(data.groups);
+      showToast('تم استيراد النسخة الاحتياطية بنجاح');
+      renderAdminTab();
+    } catch(err) {
+      showToast('ملف غير صالح','error');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function confirmClearAll() {
+  showModal(`
+    <div class="text-center py-4">
+      <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(239,68,68,0.1)">
+        <i class="fas fa-exclamation-triangle text-2xl" style="color:#ef4444"></i>
+      </div>
+      <h3 class="text-lg font-bold mb-2" style="color:#ef4444">مسح جميع البيانات</h3>
+      <p style="color:var(--text-secondary);font-size:14px">سيتم حذف جميع العملاء والإعدادات نهائياً.<br>هل أنت متأكد؟</p>
+      <div class="flex gap-3 mt-6 justify-center">
+        <button class="btn-danger px-8" onclick="clearAllData()"><i class="fas fa-trash"></i>مسح الكل</button>
+        <button class="btn-outline" onclick="closeModal()">إلغاء</button>
+      </div>
+    </div>
+  `);
+}
+function clearAllData() {
+  localStorage.removeItem('ym_customers');
+  localStorage.removeItem('ym_settings');
+  localStorage.removeItem('ym_groups');
+  closeModal();
+  showToast('تم مسح جميع البيانات','info');
+  renderAdminTab();
+}
+
+// ============================
+// أدوات مساعدة
+// ============================
+function escHtml(str) {
+  if(!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatDate(iso) {
+  if(!iso) return '-';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('ar-SA', { year:'numeric', month:'short', day:'numeric' }) +
+      ' ' + d.toLocaleTimeString('ar-SA', { hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return iso; }
+}
+
+function initFadeUp() {
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting) { entry.target.classList.add('visible'); }
+    });
+  }, { threshold:0.1 });
+  document.querySelectorAll('.fade-up:not(.visible)').forEach(el=>observer.observe(el));
+}
+
+// ============================
+// التعامل مع QR في الرابط
+// ============================
+function checkURLCustomer() {
+  const hash = window.location.hash;
+  if(hash.startsWith('#customer=')) {
+    const id = hash.replace('#customer=','');
+    const customers = getCustomers();
+    const c = customers.find(x=>x.id===id);
+    if(c) {
+      navigateTo('search');
+      document.getElementById('search-phone').value = c.phone;
+      renderSearchResults([c]);
+    }
+  }
+}
+
+// ============================
+// التهيئة
+// ============================
+function init() {
+  // تحميل الموضوع
+  state.darkMode = loadData('darkMode', true);
+  applyTheme();
+
+  // التأكد من وجود البيانات الافتراضية
+  if(!localStorage.getItem('ym_settings')) saveSettings({...DEFAULT_SETTINGS});
+  if(!localStorage.getItem('ym_groups')) saveGroups([...DEFAULT_GROUPS]);
+
+  // عرض الصفحة الرئيسية
+  renderHome();
+
+  // تحريك عناصر الظهور
+  setTimeout(initFadeUp, 200);
+
+  // التحقق من QR في الرابط
+  checkURLCustomer();
+
+  // تحديث اسم المحل في الهيدر
+  const s = getSettings();
+  document.querySelector('.logo-text').textContent = s.shopName;
+}
+
+// بدء التطبيق
+document.addEventListener('DOMContentLoaded', init);
+
+// حفظ تلقائي عند إغلاق الصفحة
+window.addEventListener('beforeunload', ()=>{});
+
+// دعم لوحة المفاتيح - Escape لإغلاق المودال
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape') closeModal();
+});
+</script>
+</body>
+</html>
